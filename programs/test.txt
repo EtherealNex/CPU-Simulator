@@ -1,0 +1,6 @@
+START   LDA    BASE
+        ADD    BASE
+        OUT
+        HLT
+
+BASE    DAT    2
