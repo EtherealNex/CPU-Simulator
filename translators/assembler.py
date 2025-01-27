@@ -11,6 +11,7 @@ class assembler:
             'BRP': ('00000101', True),   # BRP - branches to a given memory location if acc > 0 - True, requires an operand
             'STA' : ('00000110', True),  # STA - Stores the contents of the ACC into a location in memory - True, requires an operand
             'SUB' : ('00000111', True), # SUB - Subtracts the value in ACC from the value given from the operand mem address - True, requires an operand
+            'INP' : ('00001000', False),  # INP - Takes a user input, False, doent need a operand
             'OUT' : ('11111111', False),  # OUT - Outputs the value in the ACC as a denery number - False, no operand
             'DAT' : None # Special Case: handled as data
         }

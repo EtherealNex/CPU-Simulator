@@ -1,6 +1,7 @@
 class CPU:
-    def __init__(self, memory_size=1024):
-        self.memory = ['0' * 16] * memory_size  # Memory array with 16-bit binary strings
+    def __init__(self, memory_size=1024, debug = False):
+        self.debug = debug
+        self.memory = ['0' * 16] * memory_size  # Memory array with 16-bit binary strings basicly RAM
         self.registers = {
             "ACC": '0' * 16,  # Accumulator
             "PC": '0' * 16,   # Program Counter
@@ -19,6 +20,7 @@ class CPU:
             '00000101' : self.BRP,  # BRP - branches to a given memory location if acc > 0
             '00000110' : self.STA,  # STA - Stores the contents of the ACC into a location in memory
             '00000111' : self.SUB,  # SUB - Subtracts the value given from the operand address from the ACC
+            '00001000' : self.INP,  # INP - Takes a user input
             '11111111' : self.OUT   # OUT - Outputs the value in the ACC as a denery number
         }
 
@@ -68,7 +70,8 @@ class CPU:
         # Update the ACC with the new value as a binary string
         self.registers["ACC"] = self.to_bin(result)
 
-        print(f"ADD executed: ACC = {self.registers['ACC']}")
+        if self.debug:
+            print(f"ADD executed: ACC = {self.registers['ACC']}")
 
     def SUB(self, operand):
         self.registers["MAR"] = operand
@@ -79,39 +82,65 @@ class CPU:
         result = acc_value - mdr_value
 
         self.registers["ACC"] = self.to_bin(result)
-        print(f"SUB executed: ACC = {self.registers["ACC"]} (binary), Result = {result} (decimal)")
+        if self.debug:
+            print(f"SUB executed: ACC = {self.registers["ACC"]} (binary), Result = {result} (decimal)")
 
     def LDA(self, operand):
         self.registers["MAR"] = operand  # Set MAR to the address specified by the operand
         self.registers["MDR"] = self.memory[int(self.registers["MAR"], 2)]  # Fetch value from memory
         self.registers["ACC"] = self.registers["MDR"]  # Load MDR into ACC
-        print(f"LDA executed: ACC = {self.twos_complement(self.registers['ACC'])} (signed)")
+        if self.debug:
+            print(f"LDA executed: ACC = {self.twos_complement(self.registers['ACC'])} (signed)")
 
     def STA(self, operand):
         self.memory[int(operand, 2)] = self.registers["ACC"]
-        print(f"STA executed: Memory[{operand}] = {self.twos_complement(self.registers['ACC'])}")
+        if self.debug:
+            print(f"STA executed: Memory[{operand}] = {self.twos_complement(self.registers['ACC'])}")
 
     def BRA(self, operand):
         self.registers["PC"] = operand # This should just work.
-        print("BRA executed: PC =", str(self.registers["PC"]))
+        if self.debug:
+            print("BRA executed: PC =", str(self.registers["PC"]))
         
     def BRP(self, operand):
         if self.twos_complement(self.registers["ACC"]) >= 0:  # Check if ACC is positive or zero
             self.registers["PC"] = operand
-            print(f"BRP executed: PC = {self.registers['PC']}")
+            if self.debug:
+               print(f"BRP executed: PC = {self.registers['PC']}")
 
     def BRZ(self, operand):
         if self.twos_complement(self.registers["ACC"]) == 0:  # Check if ACC is zero
             self.registers["PC"] = operand
-            print(f"BRZ executed: PC = {self.registers['PC']}")
+            if self.debug:
+                print(f"BRZ executed: PC = {self.registers['PC']}")
 
     def HLT(self, operand):
         # Halt the CPU
-        print("HLT executed")
+        if self.debug:
+            print("HLT executed")
         self.running = False
 
+    def INP(self, operand):
+        false_value = True
+        while false_value:
+            try:
+                input_denery = int(input("Enter Input: "))
+
+                if -32768 <= input_denery <= 32768:
+                    bin_input = self.to_bin(input_denery)
+                    self.registers["ACC"] = bin_input
+                    false_value = False
+                else:
+                    raise ValueError("Integer Input Out Of Range")
+            
+            except Exception as e:
+                print(e)
+            
+            except ValueError:
+                print("Invalid Input. Please Enter a valid integer")
+
     def OUT(self, operand):
-        print(f"OUT executed: {self.twos_complement(self.registers['ACC'])}")
+        print(f"{self.twos_complement(self.registers['ACC'])}")
 
 
 # Conversion Functions 

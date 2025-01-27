@@ -11,10 +11,12 @@ MyFirstProgram = [
     '0000000000000001'   # Memory address 5: Value 1
 ]
 
-cpu = CPU()
-asm = assembler("programs/powerOf2.txt", False)
+debug = True
+cpu = CPU(debug=debug)
+asm = assembler("programs/test.txt", False)
 cpu.load_program(asm.assemble())  # Load the program into memory
 cpu.run()
 
-# Output the final state of registers
-print(f"Final Registers: ACC = {cpu.registers['ACC']}, PC = {cpu.registers['PC']}")
+if debug:
+    # Output the final state of registers
+    print(f"Final Registers: ACC = {cpu.registers['ACC']}, PC = {cpu.registers['PC']}")

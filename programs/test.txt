@@ -1,1 +1,39 @@
-// No Tests
+INPUT   INP
+        STA NUM
+        STA VAR1
+        STA REP
+        STA CONST2
+        INP
+        BRZ 0ERROR
+        STA POWER
+CHKPOW  LDA POWER
+        SUB CONST1
+        STA POWER
+        BRZ OUTPUT
+        BRA RESET
+CHKREP  LDA REP
+        SUB CONST1
+        STA REP
+        BRZ CHKPOW
+        BRA LOOP
+RESET   LDA NUM
+        STA VAR1
+        LDA CONST2
+        STA REP
+        BRA CHKREP
+LOOP    LDA NUM
+        ADD VAR1
+        STA NUM
+        BRA CHKREP
+OUTPUT  LDA NUM
+        OUT
+        BRA INPUT
+0ERROR  LDA CONST1
+        OUT
+        BRA INPUT
+NUM     DAT
+VAR1    DAT
+CONST1  DAT 1
+CONST2  DAT
+REP     DAT
+POWER   DAT
