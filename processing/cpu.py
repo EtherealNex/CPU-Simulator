@@ -77,10 +77,9 @@ class CPU:
         mdr_value = int(self.registers["MDR"], 2)
 
         result = acc_value - mdr_value
-        print(f"SUB result: {result}, type: {type(result)}")
 
         self.registers["ACC"] = self.to_bin(result)
-        print(f"SUB executed: ACC = {self.registers["ACC"]}")
+        print(f"SUB executed: ACC = {self.registers["ACC"]} (binary), Result = {result} (decimal)")
 
     def LDA(self, operand):
         self.registers["MAR"] = operand  # Set MAR to the address specified by the operand

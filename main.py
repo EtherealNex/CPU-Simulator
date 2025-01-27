@@ -12,7 +12,7 @@ MyFirstProgram = [
 ]
 
 cpu = CPU()
-asm = assembler("programs/test.txt", False)
+asm = assembler("programs/powerOf2.txt", False)
 cpu.load_program(asm.assemble())  # Load the program into memory
 cpu.run()
 
