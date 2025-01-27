@@ -18,6 +18,7 @@ class CPU:
             '00000100' : self.BRZ,  # BRZ - branch to a given memory location if acc == 0
             '00000101' : self.BRP,  # BRP - branches to a given memory location if acc > 0
             '00000110' : self.STA,  # STA - Stores the contents of the ACC into a location in memory
+            '00000111' : self.SUB,  # SUB - Subtracts the value given from the operand address from the ACC
             '11111111' : self.OUT   # OUT - Outputs the value in the ACC as a denery number
         }
 
@@ -69,12 +70,23 @@ class CPU:
 
         print(f"ADD executed: ACC = {self.registers['ACC']}")
 
+    def SUB(self, operand):
+        self.registers["MAR"] = operand
+        self.registers["MDR"] = self.memory[int(self.registers["MAR"], 2)]
+        acc_value = int(self.registers["ACC"], 2)
+        mdr_value = int(self.registers["MDR"], 2)
+
+        result = acc_value - mdr_value
+        print(f"SUB result: {result}, type: {type(result)}")
+
+        self.registers["ACC"] = self.to_bin(result)
+        print(f"SUB executed: ACC = {self.registers["ACC"]}")
+
     def LDA(self, operand):
         self.registers["MAR"] = operand  # Set MAR to the address specified by the operand
         self.registers["MDR"] = self.memory[int(self.registers["MAR"], 2)]  # Fetch value from memory
         self.registers["ACC"] = self.registers["MDR"]  # Load MDR into ACC
         print(f"LDA executed: ACC = {self.twos_complement(self.registers['ACC'])} (signed)")
-
 
     def STA(self, operand):
         self.memory[int(operand, 2)] = self.registers["ACC"]
