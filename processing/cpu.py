@@ -65,34 +65,34 @@ class CPU:
         result = (acc_value + mdr_value) & 0xFFFF  # Keep only the lower 16 bits
 
         # Update the ACC with the new value as a binary string
-        self.registers["ACC"] = bin(result)[2:].zfill(16)  # Convert back to binary and pad to 16 bits
+        self.registers["ACC"] = self.to_bin(result)
 
         print(f"ADD executed: ACC = {self.registers['ACC']}")
 
     def LDA(self, operand):
-        # Operand is treated as a memory address; load its value into ACC
         self.registers["MAR"] = operand  # Set MAR to the address specified by the operand
         self.registers["MDR"] = self.memory[int(self.registers["MAR"], 2)]  # Fetch value from memory
         self.registers["ACC"] = self.registers["MDR"]  # Load MDR into ACC
-        print(f"LDA executed: ACC = {self.registers['ACC']}")
+        print(f"LDA executed: ACC = {self.twos_complement(self.registers['ACC'])} (signed)")
+
 
     def STA(self, operand):
         self.memory[int(operand, 2)] = self.registers["ACC"]
-        print(f"STA executed, {operand} = {self.registers["ACC"]}")
+        print(f"STA executed: Memory[{operand}] = {self.twos_complement(self.registers['ACC'])}")
 
     def BRA(self, operand):
         self.registers["PC"] = operand # This should just work.
         print("BRA executed: PC =", str(self.registers["PC"]))
         
     def BRP(self, operand):
-        if self.registers["ACC"] != '0000000000000000':
+        if self.twos_complement(self.registers["ACC"]) >= 0:  # Check if ACC is positive or zero
             self.registers["PC"] = operand
-            print("BRP executed: PC =", str(self.registers["PC"]))
-    
+            print(f"BRP executed: PC = {self.registers['PC']}")
+
     def BRZ(self, operand):
-        if self.registers["ACC"] == '0000000000000000':
+        if self.twos_complement(self.registers["ACC"]) == 0:  # Check if ACC is zero
             self.registers["PC"] = operand
-            print("BRZ executed: PC =", str(self.registers["PC"]))
+            print(f"BRZ executed: PC = {self.registers['PC']}")
 
     def HLT(self, operand):
         # Halt the CPU
@@ -100,7 +100,31 @@ class CPU:
         self.running = False
 
     def OUT(self, operand):
-        print(int(self.registers["ACC"], 2))
+        print(f"OUT executed: {self.twos_complement(self.registers['ACC'])}")
+
+
+# Conversion Functions 
+# as much as I dont want to be using python logic there is no way around 2's compliment 
+# where we can stay in binary
+
+    def twos_complement(self, binary_str, bit_width=16):
+
+        if not isinstance(binary_str, str):
+            binary_str = str(binary_str)  # Convert to string if not already
+        value = int(binary_str, 2)  # Interpret as unsigned binary
+        if value >= (1 << (bit_width - 1)):  # If MSB is 1 (negative number)
+            value -= (1 << bit_width)  # Subtract 2^bit_width to get the negative value
+        
+        return value
+
+
+    def to_bin(self, value, bits=16):
+        if not isinstance(value, int):  # Ensure value is an integer
+            raise TypeError(f"Expected int, got {type(value).__name__}")
+        if value < 0:  # Handle negative numbers
+            value = (1 << bits) + value  # Apply two's complement
+        return bin(value & ((1 << bits) - 1))[2:].zfill(bits)  # Ensure proper bit-width
+
 
     def run(self):
         # Main loop for the Fetch-Decode-Execute cycle

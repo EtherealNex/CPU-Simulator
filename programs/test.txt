@@ -1,6 +1,19 @@
-START   LDA    BASE
-        ADD    BASE
-        OUT
-        HLT
+START   LDA NUM1          // Load NUM1 into ACC
+        ADD NUM2          // Add NUM2 to ACC
+        OUT               // Output the result (should be -2)
+        BRP POSITIVE      // Branch to POSITIVE if ACC >= 0
+        LDA NEG_MSG       // If negative, load NEG_MSG
+        OUT               // Output the negative message
+        BRA END           // Jump to END
 
-BASE    DAT    2
+POSITIVE LDA POS_MSG      // Load POS_MSG if ACC >= 0
+        OUT               // Output the positive message
+        BRA END           // Jump to END
+
+END     HLT               // Halt the program
+
+// Data Section
+NUM1    DAT 3             // Positive number
+NUM2    DAT -5            // Negative number
+NEG_MSG DAT -1            // Negative result message
+POS_MSG DAT 1             // Positive result message
